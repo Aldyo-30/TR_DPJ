@@ -130,7 +130,7 @@ def add_port():
         data = request.json  
         print("Data received:", data)  
         response = requests.put(API_URL, auth=AUTH, json={
-            "name": data["name"],
+            "interface": data["interface"],
             "bridge": data["bridge"],  # Menambahkan bridge yang dipilih
         })
         if response.status_code == 201:
