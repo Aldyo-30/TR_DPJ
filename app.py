@@ -4,21 +4,24 @@ import requests
 app = Flask(__name__)
 
 # API URL untuk ports, bridges, IP address, dan IP pool
-API_URL = "http://192.168.18.24/rest/interface/bridge/port"
-BRIDGE_API_URL = "http://192.168.18.24/rest/interface/bridge"
-INTERFACE_API_URL = "http://192.168.18.24/rest/interface"  
-IP_ADDRESS_API_URL = "http://192.168.18.24/rest/ip/address"  
-IP_POOL_API_URL = "http://192.168.18.24/rest/ip/pool"  
+BRIDGE_API_URL = "http://192.168.18.53/rest/interface/bridge"
+PORT_API_URL = "http://192.168.18.53/rest/interface/bridge/port"
+INTERFACE_API_URL = "http://192.168.18.53/rest/interface"  
+IP_ADDRESS_API_URL = "http://192.168.18.53/rest/ip/address"  
+IP_POOL_API_URL = "http://192.168.18.53/rest/ip/pool"  
 AUTH = ('admin', 'admin')
 
 # Fungsi untuk mengambil data semua ports
 def fetch_ports():
     try:
-        response = requests.get(API_URL, auth=AUTH)
+        response = requests.get(PORT_API_URL, auth=AUTH, timeout=10)  # Menambahkan timeout
         if response.status_code == 200:
             return response.json()
         else:
             return []  
+    except requests.exceptions.Timeout:
+        print("Error fetching ports: Request timed out")
+        return []
     except Exception as e:
         print("Error fetching ports:", e)
         return []
@@ -26,11 +29,14 @@ def fetch_ports():
 # Fungsi untuk mengambil data semua bridges
 def fetch_bridges():
     try:
-        response = requests.get(BRIDGE_API_URL, auth=AUTH)
+        response = requests.get(BRIDGE_API_URL, auth=AUTH, timeout=10)  # Menambahkan timeout
         if response.status_code == 200:
             return response.json()
         else:
             return []  
+    except requests.exceptions.Timeout:
+        print("Error fetching bridges: Request timed out")
+        return []
     except Exception as e:
         print("Error fetching bridges:", e)
         return []
@@ -38,11 +44,14 @@ def fetch_bridges():
 # Fungsi untuk mengambil data semua interfaces
 def fetch_interfaces():
     try:
-        response = requests.get(INTERFACE_API_URL, auth=AUTH)  # Mengambil data dari API interfaces
+        response = requests.get(INTERFACE_API_URL, auth=AUTH, timeout=10)  # Menambahkan timeout
         if response.status_code == 200:
             return response.json()
         else:
             return []  
+    except requests.exceptions.Timeout:
+        print("Error fetching interfaces: Request timed out")
+        return []
     except Exception as e:
         print("Error fetching interfaces:", e)
         return []
@@ -50,11 +59,14 @@ def fetch_interfaces():
 # Fungsi untuk mengambil data semua IP address
 def fetch_ip_addresses():
     try:
-        response = requests.get(IP_ADDRESS_API_URL, auth=AUTH)  # Mengambil data dari API IP address
+        response = requests.get(IP_ADDRESS_API_URL, auth=AUTH, timeout=10)  # Menambahkan timeout
         if response.status_code == 200:
             return response.json()
         else:
             return []  
+    except requests.exceptions.Timeout:
+        print("Error fetching IP addresses: Request timed out")
+        return []
     except Exception as e:
         print("Error fetching IP addresses:", e)
         return []
@@ -62,11 +74,14 @@ def fetch_ip_addresses():
 # Fungsi untuk mengambil data semua IP pool
 def fetch_ip_pools():
     try:
-        response = requests.get(IP_POOL_API_URL, auth=AUTH)  # Mengambil data dari API IP pool
+        response = requests.get(IP_POOL_API_URL, auth=AUTH, timeout=10)  # Menambahkan timeout
         if response.status_code == 200:
             return response.json()
         else:
             return []  
+    except requests.exceptions.Timeout:
+        print("Error fetching IP pools: Request timed out")
+        return []
     except Exception as e:
         print("Error fetching IP pools:", e)
         return []
@@ -99,11 +114,14 @@ def ip_pool_index():
 @app.route('/bridge/<id>', methods=['GET'])
 def bridge_detail(id):
     try:
-        response = requests.get(f"{BRIDGE_API_URL}/{id}", auth=AUTH)
+        response = requests.get(f"{BRIDGE_API_URL}/{id}", auth=AUTH, timeout=10)  # Menambahkan timeout
         if response.status_code == 200:
             return jsonify(response.json())  
         else:
             return jsonify({})  
+    except requests.exceptions.Timeout:
+        print(f"Error fetching bridge {id} details: Request timed out")
+        return jsonify({})  
     except Exception as e:
         print(f"Error fetching bridge {id} details:", e)
         return jsonify({})  
@@ -150,11 +168,14 @@ def delete_bridge(bridge_id):
 @app.route('/port/<id>', methods=['GET'])
 def port_detail(id):
     try:
-        response = requests.get(f"{API_URL}/{id}", auth=AUTH)
+        response = requests.get(f"{PORT_API_URL}/{id}", auth=AUTH, timeout=10)  # Menambahkan timeout
         if response.status_code == 200:
             return jsonify(response.json())  
         else:
             return jsonify({})  
+    except requests.exceptions.Timeout:
+        print(f"Error fetching port {id} details: Request timed out")
+        return jsonify({})  
     except Exception as e:
         print(f"Error fetching port {id} details:", e)
         return jsonify({})  
@@ -164,7 +185,7 @@ def add_port():
     try:
         data = request.json  
         print("Data received:", data)  
-        response = requests.put(API_URL, auth=AUTH, json={
+        response = requests.put(PORT_API_URL, auth=AUTH, json={
             "interface": data["interface"],
             "bridge": data["bridge"],  # Menambahkan bridge yang dipilih
         })
@@ -179,7 +200,7 @@ def add_port():
 def update_port(port_id):
     try:
         data = request.json  
-        response = requests.patch(f"{API_URL}/{port_id}", auth=AUTH, json=data)
+        response = requests.patch(f"{PORT_API_URL}/{port_id}", auth=AUTH, json=data)
         if response.status_code == 200:
             return jsonify({"message": "Port updated successfully"}), 200  
         return jsonify({"error": "Failed to update port"}), 400  
@@ -189,7 +210,7 @@ def update_port(port_id):
 
 @app.route('/delete/port/<port_id>', methods=['DELETE'])
 def delete_port(port_id):
-    response = requests.delete(f"{API_URL}/{port_id}", auth=AUTH)
+    response = requests.delete(f"{PORT_API_URL}/{port_id}", auth=AUTH)
     if response.status_code == 204:
         return jsonify({"message": "Port deleted successfully"}), 204
     return jsonify({"error": "Failed to delete port"}), response.status_code
@@ -198,11 +219,14 @@ def delete_port(port_id):
 @app.route('/ip/<id>', methods=['GET'])
 def ip_detail(id):
     try:
-        response = requests.get(f"{IP_ADDRESS_API_URL}/{id}", auth=AUTH)
+        response = requests.get(f"{IP_ADDRESS_API_URL}/{id}", auth=AUTH, timeout=10)  # Menambahkan timeout
         if response.status_code == 200:
             return jsonify(response.json())  
         else:
             return jsonify({})  
+    except requests.exceptions.Timeout:
+        print(f"Error fetching IP address {id} details: Request timed out")
+        return jsonify({})  
     except Exception as e:
         print(f"Error fetching IP address {id} details:", e)
         return jsonify({})  
@@ -241,16 +265,18 @@ def delete_ip(ip_id):
     if response.status_code == 204:
         return jsonify({"message": "IP Address deleted successfully"}), 204
     return jsonify({"error": "Failed to delete IP Address"}), response.status_code
-
 # CRUD untuk IP Pool
 @app.route('/pool/<id>', methods=['GET'])
 def ip_pool_detail(id):
     try:
-        response = requests.get(f"{IP_POOL_API_URL}/{id}", auth=AUTH)
+        response = requests.get(f"{IP_POOL_API_URL}/{id}", auth=AUTH, timeout=10)  # Menambahkan timeout
         if response.status_code == 200:
             return jsonify(response.json())  
         else:
             return jsonify({})  
+    except requests.exceptions.Timeout:
+        print(f"Error fetching IP pool {id} details: Request timed out")
+        return jsonify({})  
     except Exception as e:
         print(f"Error fetching IP pool {id} details:", e)
         return jsonify({})  
