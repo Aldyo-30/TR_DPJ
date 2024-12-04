@@ -9,8 +9,8 @@ hamBurger.addEventListener("click", function () {
 document.getElementById('addInterfaceForm').addEventListener('submit', function (e) {
   e.preventDefault(); // Prevent form submission from refreshing the page
 
-    const interfaceName = document.getElementById('interfaceSelect').value;
     const bridgeName = document.getElementById('bridgeSelect').value;
+    const interfaceName = document.getElementById('interfaceSelect').value;
 
   // Data logging for debugging
     console.log("Form data:", { interfaceName, bridgeName });

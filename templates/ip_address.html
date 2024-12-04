@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Ports</title>
+    <title>Manage IP Addresses</title>
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ"
@@ -37,10 +37,10 @@
                         <span>Bridge Ports</span>
                     </a>
                 </li>
-                <li class="sidebar-item"></li>
+                <li class="sidebar-item">
                     <a href="/ip" class="sidebar-link">
                         <i class="lni lni-agenda"></i>
-                        <span>PPP Interface</span>
+                        <span>IP Addresses</span>
                     </a>
                 </li>
                 <li class="sidebar-item"></li>
@@ -58,10 +58,16 @@
         </aside>
         <div class="main p-3">
             <div class="container mt-4">
-                <h1 class="text-center">Manage Mikrotik Ports</h1>
-                <h3 class="mt-5">Add Port</h3>
-                <form id="addInterfaceForm">
-                    <!-- Interface Name Dropdown -->
+                <h1 class="text-center">Manage Mikrotik IP Addresses</h1>
+                <h3 class="mt-5">Add IP Address</h3>
+                <form id="addIpForm">
+                    <!-- IP Address Input -->
+                    <div class="mb-3">
+                        <label for="ipAddress" class="form-label">IP Address</label>
+                        <input type="text" class="form-control" id="ipAddress" placeholder="Enter IP Address" required>
+                    </div>
+
+                    <!-- Interface Dropdown -->
                     <div class="mb-3">
                         <label for="interfaceSelect" class="form-label">Select Interface</label>
                         <select class="form-select" id="interfaceSelect" required>
@@ -72,41 +78,32 @@
                         </select>
                     </div>
 
-                    <!-- Bridge Dropdown -->
-                    <div class="mb-3">
-                        <label for="bridgeSelect" class="form-label">Select Bridge</label>
-                        <select class="form-select" id="bridgeSelect" required>
-                            <option value="" disabled selected>Select Bridge</option>
-                            {% for bridge in bridges %}
-                            <option value="{{ bridge['name'] }}">{{ bridge['name'] }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary">Add Port</button>
+                    <button type="submit" class="btn btn-primary">Add IP Address</button>
                 </form>
 
-                <h3 class="mt-5">Existing Ports</h3>
+                <h3 class="mt-5">Existing IP Addresses</h3>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>IP Address</th>
+                            <th>Network</th>
                             <th>Interface</th>
-                            <th>Bridge</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for port in ports %}
+                        {% for ip in ip_addresses %}
                         <tr>
-                            <td>{{ port[".id"] }}</td>
-                            <td>{{ port["interface"] }}</td>
-                            <td>{{ port["bridge"] }}</td>
+                            <td>{{ ip[".id"] }}</td>
+                            <td>{{ ip["address"] }}</td>
+                            <td>{{ ip["network"] }}</td> 
+                            <td>{{ ip["interface"] }}</td>
                             <td>
-                                <button class="btn btn-info btn-sm detail-port-btn" data-id="{{ port['.id'] }}">Detail</button>
-                                <button class="btn btn-warning btn-sm edit-port-btn" data-id="{{ port['.id'] }}">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-port-btn" data-id="{{ port['.id'] }}">Delete</button>
+                                <button class="btn btn-info btn-sm detail-ip-btn" data-id="{{ ip['.id'] }}">Detail</button>
+                                <button class="btn btn-warning btn-sm edit-ip-btn" data-id="{{ ip['.id'] }}">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-ip-btn" data-id="{{ ip['.id'] }}">Delete</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -116,18 +113,18 @@
         </div>
     </div>
 
-    <!-- Modal for Port Details -->
-    <div class="modal fade" id="portDetailModal" tabindex="-1" aria-labelledby="portDetailModalLabel"
+    <!-- Modal for IP Details -->
+    <div class="modal fade" id="ipDetailModal" tabindex="-1" aria-labelledby="ipDetailModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="portDetailModalLabel">Port Details</h5>
+                    <h5 class="modal-title" id="ipDetailModalLabel">IP Address Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <ul id="portDetailsList" class="list-group">
-                        <!-- Port details will appear here -->
+                    <ul id="ipDetailsList" class="list-group">
+                        <!-- IP details will appear here -->
                     </ul>
                 </div>
                 <div class="modal-footer">
@@ -140,7 +137,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='js/port_script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ip_address.js') }}"></script>
 </body>
 
 </html>

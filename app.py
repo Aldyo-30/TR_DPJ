@@ -3,10 +3,12 @@ import requests
 
 app = Flask(__name__)
 
-# API URL untuk ports dan bridges
+# API URL untuk ports, bridges, IP address, dan IP pool
 API_URL = "http://192.168.18.24/rest/interface/bridge/port"
 BRIDGE_API_URL = "http://192.168.18.24/rest/interface/bridge"
-INTERFACE_API_URL = "http://192.168.18.24/rest/interface"  # Tambahkan URL API untuk interfaces
+INTERFACE_API_URL = "http://192.168.18.24/rest/interface"  
+IP_ADDRESS_API_URL = "http://192.168.18.24/rest/ip/address"  
+IP_POOL_API_URL = "http://192.168.18.24/rest/ip/pool"  
 AUTH = ('admin', 'admin')
 
 # Fungsi untuk mengambil data semua ports
@@ -45,6 +47,30 @@ def fetch_interfaces():
         print("Error fetching interfaces:", e)
         return []
 
+# Fungsi untuk mengambil data semua IP address
+def fetch_ip_addresses():
+    try:
+        response = requests.get(IP_ADDRESS_API_URL, auth=AUTH)  # Mengambil data dari API IP address
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return []  
+    except Exception as e:
+        print("Error fetching IP addresses:", e)
+        return []
+
+# Fungsi untuk mengambil data semua IP pool
+def fetch_ip_pools():
+    try:
+        response = requests.get(IP_POOL_API_URL, auth=AUTH)  # Mengambil data dari API IP pool
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return []  
+    except Exception as e:
+        print("Error fetching IP pools:", e)
+        return []
+
 # Halaman utama: Menampilkan daftar bridges
 @app.route('/')
 def index():
@@ -57,6 +83,17 @@ def port_index():
     bridges = fetch_bridges()  # Ambil daftar bridges
     interfaces = fetch_interfaces()  # Ambil daftar interfaces
     return render_template('port.html', ports=ports, bridges=bridges, interfaces=interfaces)
+
+@app.route('/ip')
+def ip_index():
+    ip_addresses = fetch_ip_addresses()  # Ambil daftar IP addresses
+    interfaces = fetch_interfaces()  # Ambil daftar interfaces untuk ditampilkan
+    return render_template('ip_address.html', ip_addresses=ip_addresses, interfaces=interfaces)  # Render halaman IP
+
+@app.route('/pool')
+def ip_pool_index():
+    ip_pools = fetch_ip_pools()  # Ambil daftar IP pools
+    return render_template('ip_pool.html', ip_pools=ip_pools)  # Render halaman IP pool
 
 # CRUD untuk Bridge
 @app.route('/bridge/<id>', methods=['GET'])
@@ -109,8 +146,6 @@ def delete_bridge(bridge_id):
         return jsonify({"message": "Bridge deleted successfully"}), 204
     return jsonify({"error": "Failed to delete bridge"}), response.status_code
 
-
-
 # CRUD untuk Port
 @app.route('/port/<id>', methods=['GET'])
 def port_detail(id):
@@ -156,8 +191,104 @@ def update_port(port_id):
 def delete_port(port_id):
     response = requests.delete(f"{API_URL}/{port_id}", auth=AUTH)
     if response.status_code == 204:
-        return jsonify({"message": "Bridge deleted successfully"}), 204
-    return jsonify({"error": "Failed to delete bridge"}), response.status_code
+        return jsonify({"message": "Port deleted successfully"}), 204
+    return jsonify({"error": "Failed to delete port"}), response.status_code
+
+# CRUD untuk IP Address
+@app.route('/ip/<id>', methods=['GET'])
+def ip_detail(id):
+    try:
+        response = requests.get(f"{IP_ADDRESS_API_URL}/{id}", auth=AUTH)
+        if response.status_code == 200:
+            return jsonify(response.json())  
+        else:
+            return jsonify({})  
+    except Exception as e:
+        print(f"Error fetching IP address {id} details:", e)
+        return jsonify({})  
+
+@app.route('/add/ip', methods=['POST'])
+def add_ip():
+    try:
+        data = request.json  
+        print("Data received:", data)  
+        response = requests.put(IP_ADDRESS_API_URL, auth=AUTH, json={
+            "address": data["address"],
+            "interface": data["interface"],  # Menambahkan interface yang dipilih
+        })
+        if response.status_code == 201:
+            return jsonify({"message": "IP Address created successfully"}), 201  
+        return jsonify({"error": "Failed to create IP Address"}), response.status_code  
+    except Exception as e:
+        print("Exception occurred:", e)  
+        return jsonify({"error": "An error occurred"}), 500  
+
+@app.route('/update/ip/<ip_id>', methods=['PUT'])
+def update_ip(ip_id):
+    try:
+        data = request.json  
+        response = requests.patch(f"{IP_ADDRESS_API_URL}/{ip_id}", auth=AUTH, json=data)
+        if response.status_code == 200:
+            return jsonify({"message": "IP Address updated successfully"}), 200  
+        return jsonify({"error": "Failed to update IP Address"}), 400  
+    except Exception as e:
+        print(f"Error updating IP Address {ip_id}:", e)
+        return jsonify({"error": "An error occurred"}), 500  
+
+@app.route('/delete/ip/<ip_id>', methods=['DELETE'])
+def delete_ip(ip_id):
+    response = requests.delete(f"{IP_ADDRESS_API_URL}/{ip_id}", auth=AUTH)
+    if response.status_code == 204:
+        return jsonify({"message": "IP Address deleted successfully"}), 204
+    return jsonify({"error": "Failed to delete IP Address"}), response.status_code
+
+# CRUD untuk IP Pool
+@app.route('/pool/<id>', methods=['GET'])
+def ip_pool_detail(id):
+    try:
+        response = requests.get(f"{IP_POOL_API_URL}/{id}", auth=AUTH)
+        if response.status_code == 200:
+            return jsonify(response.json())  
+        else:
+            return jsonify({})  
+    except Exception as e:
+        print(f"Error fetching IP pool {id} details:", e)
+        return jsonify({})  
+
+@app.route('/add/pool', methods=['POST'])
+def add_ip_pool():
+    try:
+        data = request.json  
+        print("Data received:", data)  
+        response = requests.put(IP_POOL_API_URL, auth=AUTH, json={
+            "name": data["name"],
+            "ranges": data["ranges"],  # Menambahkan range yang dipilih
+        })
+        if response.status_code == 201:
+            return jsonify({"message": "IP Pool created successfully"}), 201  
+        return jsonify({"error": "Failed to create IP Pool"}), response.status_code  
+    except Exception as e:
+        print("Exception occurred:", e)  
+        return jsonify({"error": "An error occurred"}), 500  
+
+@app.route('/update/pool/<pool_id>', methods=['PUT'])
+def update_ip_pool(pool_id):
+    try:
+        data = request.json  
+        response = requests.patch(f"{IP_POOL_API_URL}/{pool_id}", auth=AUTH, json=data)
+        if response.status_code == 200:
+            return jsonify({"message": "IP Pool updated successfully"}), 200  
+        return jsonify({"error": "Failed to update IP Pool"}), 400  
+    except Exception as e:
+        print(f"Error updating IP Pool {pool_id}:", e)
+        return jsonify({"error": "An error occurred"}), 500  
+
+@app.route('/delete/pool/<pool_id>', methods=['DELETE'])
+def delete_ip_pool(pool_id):
+    response = requests.delete(f"{IP_POOL_API_URL}/{pool_id}", auth=AUTH)
+    if response.status_code == 204:
+        return jsonify({"message": "IP Pool deleted successfully"}), 204
+    return jsonify({"error": "Failed to delete IP Pool"}), response.status_code
 
 if __name__ == '__main__':
     app.run(debug=True)
