@@ -4,17 +4,17 @@ import requests
 app = Flask(__name__)
 
 # API URL untuk ports, bridges, IP address, dan IP pool
-BRIDGE_API_URL = "http://192.168.18.53/rest/interface/bridge"
-PORT_API_URL = "http://192.168.18.53/rest/interface/bridge/port"
-INTERFACE_API_URL = "http://192.168.18.53/rest/interface"  
-IP_ADDRESS_API_URL = "http://192.168.18.53/rest/ip/address"  
-IP_POOL_API_URL = "http://192.168.18.53/rest/ip/pool"  
+BRIDGE_API_URL = "http://172.19.20.29/rest/interface/bridge"
+PORT_API_URL = "http://172.19.20.29/rest/interface/bridge/port"
+INTERFACE_API_URL = "http://172.19.20.29/rest/interface"  
+IP_ADDRESS_API_URL = "http://172.19.20.29/rest/ip/address"  
+IP_POOL_API_URL = "http://172.19.20.29/rest/ip/pool"  
 AUTH = ('admin', 'admin')
 
 # Fungsi untuk mengambil data semua ports
 def fetch_ports():
     try:
-        response = requests.get(PORT_API_URL, auth=AUTH, timeout=10)  # Menambahkan timeout
+        response = requests.get(PORT_API_URL, auth=AUTH, timeout=10)  
         if response.status_code == 200:
             return response.json()
         else:
@@ -29,7 +29,7 @@ def fetch_ports():
 # Fungsi untuk mengambil data semua bridges
 def fetch_bridges():
     try:
-        response = requests.get(BRIDGE_API_URL, auth=AUTH, timeout=10)  # Menambahkan timeout
+        response = requests.get(BRIDGE_API_URL, auth=AUTH, timeout=10)  
         if response.status_code == 200:
             return response.json()
         else:
@@ -44,7 +44,7 @@ def fetch_bridges():
 # Fungsi untuk mengambil data semua interfaces
 def fetch_interfaces():
     try:
-        response = requests.get(INTERFACE_API_URL, auth=AUTH, timeout=10)  # Menambahkan timeout
+        response = requests.get(INTERFACE_API_URL, auth=AUTH, timeout=10)  
         if response.status_code == 200:
             return response.json()
         else:
@@ -59,7 +59,7 @@ def fetch_interfaces():
 # Fungsi untuk mengambil data semua IP address
 def fetch_ip_addresses():
     try:
-        response = requests.get(IP_ADDRESS_API_URL, auth=AUTH, timeout=10)  # Menambahkan timeout
+        response = requests.get(IP_ADDRESS_API_URL, auth=AUTH, timeout=10)  
         if response.status_code == 200:
             return response.json()
         else:
@@ -74,7 +74,7 @@ def fetch_ip_addresses():
 # Fungsi untuk mengambil data semua IP pool
 def fetch_ip_pools():
     try:
-        response = requests.get(IP_POOL_API_URL, auth=AUTH, timeout=10)  # Menambahkan timeout
+        response = requests.get(IP_POOL_API_URL, auth=AUTH, timeout=10)  
         if response.status_code == 200:
             return response.json()
         else:
@@ -95,26 +95,26 @@ def index():
 @app.route('/port')
 def port_index():
     ports = fetch_ports()
-    bridges = fetch_bridges()  # Ambil daftar bridges
-    interfaces = fetch_interfaces()  # Ambil daftar interfaces
+    bridges = fetch_bridges()  
+    interfaces = fetch_interfaces()  
     return render_template('port.html', ports=ports, bridges=bridges, interfaces=interfaces)
 
 @app.route('/ip')
 def ip_index():
-    ip_addresses = fetch_ip_addresses()  # Ambil daftar IP addresses
-    interfaces = fetch_interfaces()  # Ambil daftar interfaces untuk ditampilkan
-    return render_template('ip_address.html', ip_addresses=ip_addresses, interfaces=interfaces)  # Render halaman IP
+    ip_addresses = fetch_ip_addresses()  
+    interfaces = fetch_interfaces()  
+    return render_template('ip_address.html', ip_addresses=ip_addresses, interfaces=interfaces)  
 
 @app.route('/pool')
 def ip_pool_index():
-    ip_pools = fetch_ip_pools()  # Ambil daftar IP pools
-    return render_template('ip_pool.html', ip_pools=ip_pools)  # Render halaman IP pool
+    ip_pools = fetch_ip_pools()  
+    return render_template('ip_pool.html', ip_pools=ip_pools)  
 
 # CRUD untuk Bridge
 @app.route('/bridge/<id>', methods=['GET'])
 def bridge_detail(id):
     try:
-        response = requests.get(f"{BRIDGE_API_URL}/{id}", auth=AUTH, timeout=10)  # Menambahkan timeout
+        response = requests.get(f"{BRIDGE_API_URL}/{id}", auth=AUTH, timeout=10)  
         if response.status_code == 200:
             return jsonify(response.json())  
         else:
@@ -168,7 +168,7 @@ def delete_bridge(bridge_id):
 @app.route('/port/<id>', methods=['GET'])
 def port_detail(id):
     try:
-        response = requests.get(f"{PORT_API_URL}/{id}", auth=AUTH, timeout=10)  # Menambahkan timeout
+        response = requests.get(f"{PORT_API_URL}/{id}", auth=AUTH, timeout=10) 
         if response.status_code == 200:
             return jsonify(response.json())  
         else:
@@ -187,7 +187,7 @@ def add_port():
         print("Data received:", data)  
         response = requests.put(PORT_API_URL, auth=AUTH, json={
             "interface": data["interface"],
-            "bridge": data["bridge"],  # Menambahkan bridge yang dipilih
+            "bridge": data["bridge"], 
         })
         if response.status_code == 201:
             return jsonify({"message": "Port created successfully"}), 201  
@@ -219,7 +219,7 @@ def delete_port(port_id):
 @app.route('/ip/<id>', methods=['GET'])
 def ip_detail(id):
     try:
-        response = requests.get(f"{IP_ADDRESS_API_URL}/{id}", auth=AUTH, timeout=10)  # Menambahkan timeout
+        response = requests.get(f"{IP_ADDRESS_API_URL}/{id}", auth=AUTH, timeout=10)  
         if response.status_code == 200:
             return jsonify(response.json())  
         else:
@@ -238,7 +238,7 @@ def add_ip():
         print("Data received:", data)  
         response = requests.put(IP_ADDRESS_API_URL, auth=AUTH, json={
             "address": data["address"],
-            "interface": data["interface"],  # Menambahkan interface yang dipilih
+            "interface": data["interface"], 
         })
         if response.status_code == 201:
             return jsonify({"message": "IP Address created successfully"}), 201  
@@ -269,7 +269,7 @@ def delete_ip(ip_id):
 @app.route('/pool/<id>', methods=['GET'])
 def ip_pool_detail(id):
     try:
-        response = requests.get(f"{IP_POOL_API_URL}/{id}", auth=AUTH, timeout=10)  # Menambahkan timeout
+        response = requests.get(f"{IP_POOL_API_URL}/{id}", auth=AUTH, timeout=10)  
         if response.status_code == 200:
             return jsonify(response.json())  
         else:
@@ -288,7 +288,7 @@ def add_ip_pool():
         print("Data received:", data)  
         response = requests.put(IP_POOL_API_URL, auth=AUTH, json={
             "name": data["name"],
-            "ranges": data["ranges"],  # Menambahkan range yang dipilih
+            "ranges": data["ranges"],  
         })
         if response.status_code == 201:
             return jsonify({"message": "IP Pool created successfully"}), 201  
